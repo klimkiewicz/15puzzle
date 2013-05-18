@@ -29,7 +29,6 @@ var log = function(msg) {
 var fitness = function(board, moves, dont_finish) {
     var current_pos = board.indexOf(0);
     var moves_len = moves.length;
-    var wrong_moves = 0;
     var prev_move = 100;
     var proper_moves = [];
 
@@ -39,14 +38,12 @@ var fitness = function(board, moves, dont_finish) {
         var is_move_redundant = Math.abs(move - prev_move) == 2;
 
         if (is_move_redundant) {
-            wrong_moves++;
             proper_moves.pop();
         }
 
         var is_move_valid = VALID_MOVES[move] & (1 << current_pos);
 
         if (!is_move_valid) {
-            wrong_moves++;
             continue;
         }
 
@@ -58,10 +55,6 @@ var fitness = function(board, moves, dont_finish) {
         }
 
         var new_pos = current_pos + MOVE_OFFSETS[move];
-        if (new_pos < 0 || new_pos > 15) {
-            alert(new_pos);
-            return;
-        }
         board[current_pos] = board[new_pos];
         board[new_pos] = 0;
         current_pos = new_pos;

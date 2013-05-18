@@ -1,0 +1,157 @@
+<html>
+  <head>
+    <title>Genetic Algorithm</title>
+    <link rel="stylesheet" href="css/foundation.min.css" />
+    <script src="js/vendor/custom.modernizr.js"></script>
+  </head>
+  <body>
+	<div class="row">
+		<div class="large-12 columns">
+			<h2>15 Puzzle Solver</h2>
+            <hr/>
+            <form>
+              <fieldset>
+                <legend>Parameters</legend>
+                <div class="row">
+                  <div class="large-4 columns">
+                    <label for="population_size">Population size</label>
+                    <input id="population_size" type="text" value=5000>
+                  </div>
+                  <div class="large-4 columns">
+                    <label for="moves_len">Number of moves (chromosome size)</label>
+                    <input id="moves_len" type="text" value=300>
+                  </div>
+                  <div class="large-4 columns">
+                    <label for="max_generations">Max generations</label>
+                    <input id="max_generations" type="text" value=1000>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="large-4 columns">
+                    <label for="crossover_rate">Crossover rate</label>
+                    <input id="crossover_rate" type="text" value=0.7>
+                  </div>
+                  <div class="large-4 columns">
+                    <label for="mutation_rate">Mutation rate</label>
+                    <input id="mutation_rate" type="text" value=0.01>
+                  </div>
+                  <div class="large-4 columns"></div>
+                </div>
+              </fieldset>
+            </form>
+		</div>
+	</div>
+    <div class="row">
+      <div class="large-12 columns">
+        <fieldset>
+          <legend>Board</legend>
+          <div class="row">
+            <div class="large-4 columns">
+              <style>
+                table.board td {
+                  text-align: center;
+                  font-weight: bold;
+                }
+                table.board td.ok {
+                  background-color: #5DA423;
+                  color: white;
+                }
+                table.board td.alert {
+                  background-color: #C60F13;
+                  color: white;
+                }
+                table.board td:empty {
+                  background-color: grey;
+                }
+              </style>
+                <table class="board">
+                  <tbody>
+                    <tr>
+                      <td id="td0"></td>
+                      <td id="td1"></td>
+                      <td id="td2"></td>
+                      <td id="td3"></td>
+                    </tr>
+                    <tr>
+                      <td id="td4"></td>
+                      <td id="td5"></td>
+                      <td id="td6"></td>
+                      <td id="td7"></td>
+                    </tr>
+                    <tr>
+                      <td id="td8"></td>
+                      <td id="td9"></td>
+                      <td id="td10"></td>
+                      <td id="td11"></td>
+                    </tr>
+                    <tr>
+                      <td id="td12"></td>
+                      <td id="td13"></td>
+                      <td id="td14"></td>
+                      <td id="td15"></td>
+                    </tr>
+                  </tbody>
+                </table>
+            </div>
+            <div class="large-4 columns">
+              <label for="scramble_len">Scramble moves</label>
+              <input id="scramble_len" type="text" value=200>
+              <input class="button small" id="scramble" type="submit" value="Scramble">
+
+              <label for="source_board">Source board</label>
+              <input type="text" id="source_board" value="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,0">
+              <input type="submit" class="button small" id="use_board" value="Use">
+            </div>
+            <div class="large-4 columns"></div>
+          </div>
+          <hr/>
+          <div class="row">
+            <div class="large-4 columns"></div>
+            <div class="large-8 columns">
+              <input id="start" type="submit" class="button big success" value="Start">
+              <input id="stop" type="submit" class="button big alert" value="Stop" disabled>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+    <div class="row">
+      <div class="large-12 columns">
+        <fieldset>
+          <legend>Results</legend>
+          <div class="row">
+            <div class="large-12 columns">
+              <div class="progress"><span id="meter" class="meter" style="width: 0%;"></span></div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="large-12 columns">
+              <table class="results">
+                <thead>
+                  <tr>
+                    <th>Generation</th>
+                    <th>Best fitness</th>
+                    <th>Moves</th>
+                  </tr>
+                </thead>
+                <tbody id="results">
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+
+    <script>
+    document.write('<script src=' +
+    ('__proto__' in {} ? 'js/vendor/zepto' : 'js/vendor/jquery') +
+    '.js><\/script>')
+    </script>
+    <script src="js/foundation.min.js"></script>
+    <script>
+      $(document).foundation();
+    </script>
+    <script src="control.js"></script>
+  </body>
+</html>

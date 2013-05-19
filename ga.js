@@ -59,15 +59,17 @@ var fitness = function(board, moves, dont_finish) {
         board[new_pos] = 0;
         current_pos = new_pos;
 
-        // Check if the board is already solved
-        var diff = 0;
-        for (var j = 0; j < BOARD_LEN; j++) {
-            diff += Math.abs(SOLVED[j] - board[j]);
-            if (diff) {
-                break;
-            }
-        }
-        if (!dont_finish && !diff) {
+        var is_solved = (
+                SOLVED[0] == board[0] && SOLVED[1] == board[1] &&
+                SOLVED[2] == board[2] && SOLVED[3] == board[3] &&
+                SOLVED[4] == board[4] && SOLVED[5] == board[5] &&
+                SOLVED[6] == board[6] && SOLVED[7] == board[7] &&
+                SOLVED[8] == board[8] && SOLVED[9] == board[9] &&
+                SOLVED[10] == board[10] && SOLVED[11] == board[11] &&
+                SOLVED[12] == board[12] && SOLVED[13] == board[13] &&
+                SOLVED[14] == board[14] && SOLVED[15] == board[15]);
+
+        if (!dont_finish && is_solved) {
             return {
                 fitness: 1 + (moves.length - proper_moves.length),
                 board: board.slice(),

@@ -33,7 +33,8 @@
             moves_len: parseInt($('moves_len').value),
             max_generations: parseInt($('max_generations').value),
             crossover_rate: parseFloat($('crossover_rate').value),
-            mutation_rate: parseFloat($('mutation_rate').value)
+            mutation_rate: parseFloat($('mutation_rate').value),
+            workers_num: parseInt($('workers_num').value)
         }
     };
 
@@ -78,11 +79,12 @@
         }
         el.disabled = true;
 
-        var worker = GA_WORKERS[0];
-
-        setTimeout(function() {
-            worker.terminate();
-        }, 10);
+        for (var i = 0; i < GA_WORKERS.length; i++) {
+            var worker = GA_WORKERS[i];
+            if (worker) {
+                worker.terminate();
+            }
+        }
 
         GA_WORKERS = GA_WORKERS.slice(0, 0);
         $('start').disabled = false;
@@ -115,9 +117,6 @@
         $('meter').style.width = '0%';
         $('results').innerHTML = '';
       
-        var worker = new Worker('ga.js');
-        GA_WORKERS.push(worker);
-
         var start_time = new Date().getTime();
 
         var showTime = function() {
@@ -126,46 +125,79 @@
 
         INTERVAL_ID = setInterval(showTime, 200);
 
-        worker.onmessage = function(e) {
-            if (e.data.log) {
-                console.log(e.data.log);
-                return;
-            } else if (e.data.finished) {
-                stopWorker();
-                return;
-            }
-
-            drawBoard(e.data.best.board);
-            $('meter').style.width = ((e.data.generation + 1) / config.max_generations * 100) + '%';
-
-            if (e.data.best.fitness >= 1) {
-                var moves = e.data.best.moves.length + ': ';
-                for (var i = 0; i < e.data.best.moves.length; i++) {
-                    var move = e.data.best.moves[i];
-                    moves += '<strong>' + ARROWS[move] + '</strong>' + ' ';
-                }
-            } else {
-                var moves = e.data.best.moves.length;
-            }
-
-            var tr = document.createElement('tr');
-            tr.innerHTML = '<td>' + (e.data.generation + 1) + '</td>' +
-                           '<td>' + e.data.best.fitness + '</td>' +
-                           '<td>' + moves + '</td>';
-            var parent = $('results');
-            if (parent.childNodes.length) {
-                parent.insertBefore(tr, parent.childNodes[0]);
-            } else {
-                parent.appendChild(tr);
-            }
+        var best = {
+            fitness: 0,
+            worker: -1
         };
 
-        var msg = {
-            action: 'ga',
-            configuration: config,
-            board: board
-        };
-        worker.postMessage(msg);
+        for (var i = 0; i < config.workers_num; i++) {
+            var worker = new Worker('ga.js');
+            GA_WORKERS.push(worker);
+
+            (function(i) {
+                worker.onmessage = function(e) {
+                    if (e.data.log) {
+                        console.log(e.data.log);
+                        return;
+                    } else if (e.data.finished) {
+                        delete GA_WORKERS[i];
+
+                        var has_any = false;
+
+                        for (var j = 0; j < GA_WORKERS.length; j++) {
+                            if (GA_WORKERS[j]) {
+                                has_any = true;
+                            }
+                        }
+
+                        if (!has_any) {
+                            stopWorker();
+                        }
+
+                        return;
+                    }
+
+                    if (e.data.best.fitness <= best.fitness && best.worker != i) {
+                        return;
+                    }
+
+                    best = e.data.best;
+                    best.worker = i;
+
+                    drawBoard(e.data.best.board);
+                    $('meter').style.width = ((e.data.generation + 1) / config.max_generations * 100) + '%';
+
+                    if (e.data.best.fitness >= 1) {
+                        var moves = e.data.best.moves.length + ': ';
+                        for (var j = 0; j < e.data.best.moves.length; j++) {
+                            var move = e.data.best.moves[j];
+                            moves += '<strong>' + ARROWS[move] + '</strong>' + ' ';
+                        }
+                    } else {
+                        var moves = e.data.best.moves.length;
+                    }
+
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = '<td>' + (i + 1) + '</td>' +
+                                   '<td>' + (e.data.generation + 1) + '</td>' +
+                                   '<td>' + e.data.best.fitness + '</td>' +
+                                   '<td>' + moves + '</td>';
+                    var parent = $('results');
+                    if (parent.childNodes.length) {
+                        parent.insertBefore(tr, parent.childNodes[0]);
+                    } else {
+                        parent.appendChild(tr);
+                    }
+                };
+
+            })(i);
+
+            worker.postMessage({
+                action: 'ga',
+                configuration: config,
+                board: board
+            });
+        }
       
         $('stop').disabled = false;
     });

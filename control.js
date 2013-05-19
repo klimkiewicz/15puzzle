@@ -4,6 +4,7 @@
     var GA_WORKERS = [];
     var CURRENT_BOARD = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 0];
     var ARROWS = ['&rarr;', '&darr;', '&larr;', '&uarr;'];
+    var INTERVAL_ID = null;
 
     var $ = document.getElementById.bind(document);
 
@@ -87,6 +88,11 @@
         $('start').disabled = false;
         $('scramble').disabled = false;
         $('use_board').disabled = false;
+
+        if (INTERVAL_ID) {
+            clearInterval(INTERVAL_ID);
+            INTERVAL_ID = null;
+        }
     };
 
 
@@ -111,6 +117,14 @@
       
         var worker = new Worker('ga.js');
         GA_WORKERS.push(worker);
+
+        var start_time = new Date().getTime();
+
+        var showTime = function() {
+            $('time').innerHTML = Math.round((new Date().getTime() - start_time) / 1000);
+        };
+
+        INTERVAL_ID = setInterval(showTime, 200);
 
         worker.onmessage = function(e) {
             if (e.data.log) {
